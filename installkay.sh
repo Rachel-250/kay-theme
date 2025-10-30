@@ -1,58 +1,24 @@
 #!/bin/bash
-# =========================================================
-#  Tema Kay Installer — Ganti Background Panel Pterodactyl
-# =========================================================
+# Tema Kay - Simple Background Changer
+# Made by Rachel 💙
 
-PANEL_PATH="/var/www/pterodactyl"
-BG_URL="https://files.catbox.moe/nqabow.jpg"
-TOKEN_BENAR="kay123"
+echo "🎨 Memulai pemasangan Tema Kay..."
 
-echo "=== Installer Tema Kay ==="
-read -p "Masukkan token: " TOKEN
+PANEL_PATH="/var/www/pterodactyl/resources/scripts"
+CSS_FILE="$PANEL_PATH/app.css"
 
-if [ "$TOKEN" != "$TOKEN_BENAR" ]; then
-    echo "❌ Token salah! Hubungi admin untuk token yang valid."
+if [ ! -f "$CSS_FILE" ]; then
+    echo "❌ File panel tidak ditemukan! Pastikan ini server panel Pterodactyl."
     exit 1
 fi
 
-echo "✅ Token valid! Memulai penggantian background panel..."
+echo "🧩 Mengubah background panel..."
+# Hapus background lama, tambahkan yang baru
+sed -i '/body {/!b;n;c\  background: url("https://files.catbox.moe/nqabow.jpg") no-repeat center center fixed;\n  background-size: cover;' "$CSS_FILE"
 
-# Cek apakah folder panel ada
-if [ ! -d "$PANEL_PATH" ]; then
-  echo "❌ Folder panel tidak ditemukan di $PANEL_PATH"
-  exit 1
-fi
+echo "⚙️ Menyusun ulang aset..."
+cd /var/www/pterodactyl
+npm run build:production >/dev/null 2>&1
 
-# Masuk ke folder panel
-cd $PANEL_PATH
-
-# Download gambar background baru
-echo "⬇️ Mengunduh background baru..."
-mkdir -p public/assets/images
-curl -L -o public/assets/images/bg.jpg "$BG_URL"
-
-# Ubah CSS background
-echo "🧩 Menambahkan background ke CSS..."
-CSS_FILE="resources/scripts/index.css"
-
-if [ ! -f "$CSS_FILE" ]; then
-  echo "❌ File CSS tidak ditemukan di $CSS_FILE"
-  exit 1
-fi
-
-# Tambahkan CSS custom background
-cat <<EOF >> $CSS_FILE
-
-/* === Tema Kay Custom Background === */
-body {
-  background: url('/assets/images/bg.jpg') no-repeat center center fixed !important;
-  background-size: cover !important;
-}
-EOF
-
-# Build ulang panel agar CSS diterapkan
-echo "⚙️ Membangun ulang panel..."
-npm run build:production
-
-echo "✅ Tema Kay berhasil dipasang!"
-echo "🎨 Background panel sudah diganti ke gambar: $BG_URL"
+echo "✅ Tema Kay berhasil diterapkan!"
+echo "Silakan refresh panel browser kamu."
